@@ -1,9 +1,8 @@
 FROM ubuntu:latest
 
 EXPOSE 19132/udp
-EXPOSE 19132/tcp
 
-ENV VERSION=1.11.4.2
+ENV VERSION=1.12.0.28
 
 # Install dependencies
 RUN apt-get update && \
@@ -14,17 +13,14 @@ RUN curl https://minecraft.azureedge.net/bin-linux/bedrock-server-$VERSION.zip -
     unzip bedrock-server.zip -d bedrock-server && \
     rm bedrock-server.zip
 
-VOLUME /data
+VOLUME ["/data"]
 
-RUN mkdir /data/worlds && \
+ADD config.sh /bedrock-server/config.sh
+RUN chmod +x /bedrock-server/config.sh
+RUN /bedrock-server/config.sh
+
+RUN mkdir -p /data/worlds && \
     ln -s /data/worlds /bedrock-server/worlds
-
-RUN mv /bedrock-server/server.properties /data && \
-    mv /bedrock-server/permissions.json /data && \
-    mv /bedrock-server/whitelist.json /data && \
-    ln -s /data/server.properties /bedrock-server/server.properties && \
-    ln -s /data/permissions.json /bedrock-server/permissions.json && \
-    ln -s /data/whitelist.json /bedrock-server/whitelist.json
 
 WORKDIR /bedrock-server
 ENV LD_LIBRARY_PATH=.
